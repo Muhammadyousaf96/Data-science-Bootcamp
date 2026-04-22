@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NumPy Mastery — A Complete Guide for Data Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Fraunces:ital,wght@0,300;0,700;0,900;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f12;
+    --bg2: #13161b;
+    --bg3: #1a1e26;
+    --panel: #1e232d;
+    --border: #2a3042;
+    --accent: #5b8af5;
+    --accent2: #f0a04b;
+    --accent3: #5de8c1;
+    --accent4: #e05c8a;
+    --text: #d8dde8;
+    --muted: #6b7590;
+    --highlight: #ffe168;
+    --code-bg: #111520;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ─── SIDEBAR NAV ─── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 24px 0 40px;
+    transition: transform 0.3s;
+  }
+
+  .sidebar-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .sidebar-logo span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent3);
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .sidebar-logo h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 19px;
+    color: #fff;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .nav-group {
+    padding: 0 12px;
+    margin-bottom: 4px;
+  }
+
+  .nav-group-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 10px 8px 4px;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.18s;
+  }
+
+  .nav-link:hover, .nav-link.active {
+    background: var(--bg3);
+    color: var(--text);
+  }
+
+  .nav-link .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+    transition: background 0.18s;
+  }
+
+  .nav-link:hover .dot { background: var(--accent); }
+
+  /* ─── MAIN ─── */
+  .main {
+    margin-left: 240px;
+    min-height: 100vh;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    background: linear-gradient(135deg, #0d1220 0%, #0d0f12 50%, #0d1a18 100%);
+    padding: 80px 60px 70px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(91,138,245,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 200px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(93,232,193,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(91,138,245,0.1);
+    border: 1px solid rgba(91,138,245,0.25);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(36px, 5vw, 58px);
+    font-weight: 900;
+    line-height: 1.08;
+    color: #fff;
+    margin-bottom: 20px;
+    max-width: 700px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent3);
+  }
+
+  .hero p {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 580px;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 36px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    display: block;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ─── CONTENT ─── */
+  .content {
+    padding: 0 60px 80px;
+    max-width: 900px;
+  }
+
+  /* ─── SECTIONS ─── */
+  .section {
+    padding-top: 64px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .section-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+
+  .icon-blue { background: rgba(91,138,245,0.15); }
+  .icon-orange { background: rgba(240,160,75,0.15); }
+  .icon-green { background: rgba(93,232,193,0.15); }
+  .icon-pink { background: rgba(224,92,138,0.15); }
+  .icon-yellow { background: rgba(255,225,104,0.15); }
+  .icon-purple { background: rgba(167,119,255,0.15); }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+  }
+
+  .section-sub {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 3px;
+  }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .card h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+
+  .card p { color: var(--text); margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+
+  /* ─── CODE BLOCKS ─── */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 16px 0;
+    overflow: hidden;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+  }
+
+  .code-lang {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent3);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .code-dots {
+    display: flex; gap: 6px;
+  }
+
+  .code-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  .code-dots span:nth-child(1) { background: #ff5f57; }
+  .code-dots span:nth-child(2) { background: #febc2e; }
+  .code-dots span:nth-child(3) { background: #28c840; }
+
+  pre {
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #c9d1e0;
+  }
+
+  .kw { color: #e06c8a; font-weight: 600; }
+  .fn { color: #5b8af5; }
+  .str { color: #f0a04b; }
+  .num { color: #5de8c1; }
+  .cmt { color: #4a5570; font-style: italic; }
+  .var { color: #ffe168; }
+  .op { color: #d08fff; }
+
+  /* ─── CALLOUTS ─── */
+  .callout {
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { flex: 1; }
+  .callout-title { font-weight: 500; margin-bottom: 4px; font-size: 14px; }
+  .callout-text { font-size: 14px; }
+
+  .callout-info { background: rgba(91,138,245,0.08); border: 1px solid rgba(91,138,245,0.2); }
+  .callout-info .callout-title { color: var(--accent); }
+  .callout-warn { background: rgba(240,160,75,0.08); border: 1px solid rgba(240,160,75,0.2); }
+  .callout-warn .callout-title { color: var(--accent2); }
+  .callout-tip { background: rgba(93,232,193,0.08); border: 1px solid rgba(93,232,193,0.2); }
+  .callout-tip .callout-title { color: var(--accent3); }
+  .callout-err { background: rgba(224,92,138,0.08); border: 1px solid rgba(224,92,138,0.2); }
+  .callout-err .callout-title { color: var(--accent4); }
+
+  /* ─── VISUAL DIAGRAMS ─── */
+  .diagram {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    overflow-x: auto;
+  }
+
+  .diagram-title {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .diag-row {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 6px;
+    align-items: center;
+  }
+
+  .diag-cell {
+    width: 50px; height: 40px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+
+  .diag-cell.blue { background: rgba(91,138,245,0.2); border-color: rgba(91,138,245,0.4); color: var(--accent); }
+  .diag-cell.green { background: rgba(93,232,193,0.2); border-color: rgba(93,232,193,0.4); color: var(--accent3); }
+  .diag-cell.orange { background: rgba(240,160,75,0.2); border-color: rgba(240,160,75,0.4); color: var(--accent2); }
+  .diag-cell.pink { background: rgba(224,92,138,0.2); border-color: rgba(224,92,138,0.4); color: var(--accent4); }
+
+  .diag-label {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 0 8px;
+  }
+
+  /* ─── EXERCISE BOX ─── */
+  .exercise {
+    background: linear-gradient(135deg, rgba(91,138,245,0.05), rgba(93,232,193,0.05));
+    border: 1px solid rgba(91,138,245,0.2);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 24px 0;
+  }
+
+  .exercise-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .exercise-tag::before {
+    content: '';
+    display: block;
+    width: 16px; height: 1px;
+    background: var(--accent);
+  }
+
+  .exercise h4 {
+    color: #fff;
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    margin-bottom: 10px;
+  }
+
+  .exercise ol { padding-left: 20px; color: var(--text); }
+  .exercise li { margin-bottom: 6px; font-size: 14px; }
+
+  /* ─── MISTAKE BOX ─── */
+  .mistake-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .mistake-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .mistake-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .label-bad { color: var(--accent4); }
+  .label-good { color: var(--accent3); }
+
+  .mistake-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 10px;
+    color: #c9d1e0;
+  }
+
+  .mistake-desc { font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+  /* ─── TABLE ─── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13.5px;
+  }
+
+  th {
+    background: var(--panel);
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 500;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  td:first-child { color: var(--accent2); }
+  td:nth-child(2) { color: var(--accent3); }
+  td:nth-child(3) { color: var(--text); font-family: 'DM Sans'; font-size: 13px; }
+
+  .table-wrap {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+
+  /* ─── PROJECT SECTION ─── */
+  .project-banner {
+    background: linear-gradient(135deg, #0d1a2e, #0d1a1a);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent2);
+    border-radius: 14px;
+    padding: 32px;
+    margin-top: 10px;
+  }
+
+  .project-badge {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    background: rgba(240,160,75,0.1);
+    border: 1px solid rgba(240,160,75,0.25);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 11px;
+    color: var(--accent2);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 16px;
+  }
+
+  .project-banner h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+
+  .project-banner p { color: var(--text); margin-bottom: 14px; font-size: 14.5px; }
+
+  /* ─── WORKFLOW STEPS ─── */
+  .workflow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 20px 0;
+  }
+
+  .workflow-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  .workflow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 16px; top: 36px;
+    width: 1px;
+    height: calc(100% + 4px);
+    background: var(--border);
+  }
+
+  .step-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-content {
+    padding: 0 0 24px;
+    flex: 1;
+  }
+
+  .step-content h4 {
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 4px;
+    font-size: 14.5px;
+  }
+
+  .step-content p { font-size: 13.5px; color: var(--muted); }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+    margin: 52px 0 0;
+  }
+
+  /* ─── INLINE CODE ─── */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: var(--accent3);
+  }
+
+  /* ─── LISTS ─── */
+  ul, ol {
+    padding-left: 22px;
+    margin: 8px 0;
+  }
+
+  li { margin-bottom: 5px; color: var(--text); font-size: 14.5px; }
+
+  /* ─── NUMPY PANDAS CONNECTION ─── */
+  .connection-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    align-items: center;
+    margin: 20px 0;
+  }
+
+  .conn-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .conn-box h4 {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+
+  .conn-box p { font-size: 13px; color: var(--muted); }
+
+  .conn-arrow {
+    text-align: center;
+    padding: 0 16px;
+    color: var(--accent3);
+    font-size: 24px;
+  }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-100%); }
+    .main { margin-left: 0; }
+    .content { padding: 0 24px 60px; }
+    .hero { padding: 48px 24px; }
+    .mistake-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section { animation: fadeUp 0.4s ease both; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <span>import numpy as np</span>
+    <h2>NumPy<br>Mastery Guide</h2>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Introduction</div>
+    <a href="#intro" class="nav-link"><span class="dot"></span>What is NumPy?</a>
+    <a href="#why" class="nav-link"><span class="dot"></span>Why Use It?</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Core Concepts</div>
+    <a href="#arrays" class="nav-link"><span class="dot"></span>Arrays</a>
+    <a href="#indexing" class="nav-link"><span class="dot"></span>Indexing & Slicing</a>
+    <a href="#dtypes" class="nav-link"><span class="dot"></span>Data Types</a>
+    <a href="#operations" class="nav-link"><span class="dot"></span>Operations</a>
+    <a href="#broadcasting" class="nav-link"><span class="dot"></span>Broadcasting</a>
+    <a href="#reshaping" class="nav-link"><span class="dot"></span>Reshaping</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Advanced</div>
+    <a href="#mistakes" class="nav-link"><span class="dot"></span>Common Mistakes</a>
+    <a href="#project" class="nav-link"><span class="dot"></span>Mini Project</a>
+    <a href="#pandas" class="nav-link"><span class="dot"></span>NumPy + Pandas</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">📦 numpy · data analysis · python</div>
+    <h1>Mastering <em>NumPy</em><br>for Data Analysis</h1>
+    <p>A complete, structured guide for CS students — from first array to real-world analysis workflows. Beginner to intermediate.</p>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num">9</span><span class="stat-label">Core Topics</span></div>
+      <div class="stat"><span class="stat-num">30+</span><span class="stat-label">Code Examples</span></div>
+      <div class="stat"><span class="stat-num">8</span><span class="stat-label">Exercises</span></div>
+      <div class="stat"><span class="stat-num">1</span><span class="stat-label">Mini Project</span></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══════════════════════════════════════
+         SECTION 1 — WHAT IS NUMPY
+    ══════════════════════════════════════ -->
+    <div class="section" id="intro">
+      <div class="section-header">
+        <div class="section-icon icon-blue">📦</div>
+        <div>
+          <div class="section-title">What is NumPy?</div>
+          <div class="section-sub">section 01 / introduction</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>The Foundation of Scientific Python</h3>
+        <p>NumPy (Numerical Python) is the fundamental package for numerical computing in Python. At its core, it introduces the <strong>ndarray</strong> — a powerful N-dimensional array object that is dramatically faster and more memory-efficient than Python's built-in lists.</p>
+        <p>Think of NumPy as giving Python "superpowers" for math: instead of looping over thousands of data points one-by-one, NumPy lets you process entire datasets in a single instruction.</p>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">💡</div>
+        <div class="callout-body">
+          <div class="callout-title">Why is NumPy so fast?</div>
+          <div class="callout-text">NumPy arrays are stored as contiguous blocks of memory with a fixed type (like C arrays), allowing the CPU to process them with vectorized instructions. Python lists, by contrast, store pointers to arbitrary objects scattered in memory.</div>
+        </div>
+      </div>
+
+      <div id="why">
+        <div class="card">
+          <h3>Why NumPy for Data Analysis?</h3>
+          <ul>
+            <li><strong>Speed:</strong> NumPy operations run 10–100× faster than pure Python loops on numerical data.</li>
+            <li><strong>Memory efficiency:</strong> A NumPy array of 1 million integers uses ~8 MB; a Python list uses ~35 MB.</li>
+            <li><strong>Expressive syntax:</strong> Operations like "multiply every price by 1.1" are one-liners.</li>
+            <li><strong>Foundation of the ecosystem:</strong> Pandas, Matplotlib, Scikit-learn, and TensorFlow all build on NumPy arrays.</li>
+            <li><strong>Rich statistical functions:</strong> mean, median, std, percentile — all built in.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Python — why NumPy is faster</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <pre><span class="kw">import</span> numpy <span class="kw">as</span> <span class="var">np</span>
+<span class="kw">import</span> time
+
+<span class="cmt"># Create 1 million numbers</span>
+<span class="var">data_list</span> = <span class="fn">list</span>(<span class="fn">range</span>(<span class="num">1_000_000</span>))
+<span class="var">data_np</span>   = <span class="var">np</span>.<span class="fn">arange</span>(<span class="num">1_000_000</span>)
+
+<span class="cmt"># Python list — loop approach</span>
+<span class="var">t1</span> = time.<span class="fn">time</span>()
+<span class="var">result</span> = [x * <span class="num">2</span> <span class="kw">for</span> x <span class="kw">in</span> <span class="var">data_list</span>]
+<span class="fn">print</span>(<span class="str">f"Python list: {time.time() - t1:.4f}s"</span>)   <span class="cmt"># ~0.08s</span>
+
+<span class="cmt"># NumPy — vectorized approach</span>
+<span class="var">t2</span> = time.<span class="fn">time</span>()
+<span class="var">result</span> = <span class="var">data_np</span> * <span class="num">2</span>
+<span class="fn">print</span>(<span class="str">f"NumPy array: {time.time() - t2:.4f}s"</span>)   <span class="cmt"># ~0.001s</span></pre>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════
+         SECTION 2 — ARRAYS
+    ══════════════════════════════════════ -->
+    <div class="section" id="arrays">
+      <div class="section-header">
+        <div class="section-icon icon-green">🔢</div>
+        <div>
+          <div class="section-title">Arrays — The Core Object</div>
+          <div class="section-sub">section 02 / core concepts</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Understanding Dimensions</h3>
+        <p>NumPy arrays can have any number of dimensions. For data analysis, you'll mostly work with 1D (a single column), 2D (a table/matrix), and occasionally 3D arrays.</p>
+      </div>
+
+      <!-- VISUAL DIAGRAM -->
+      <div class="diagram">
+        <div class="diagram-title">Visual: 1D → 2D → 3D Arrays</div>
+
+        <div style="margin-bottom: 18px;">
+          <div style="color: var(--accent3); font-size: 12px; margin-bottom: 8px;">1D Array — shape: (5,) — like a single column of data</div>
+          <div class="diag-row">
+            <div class="diag-cell blue">85</div>
+            <div class="diag-cell blue">92</div>
+            <div class="diag-cell blue">78</div>
+            <div class="diag-cell blue">96</div>
+            <div class="diag-cell blue">88</div>
+            <div class="diag-label">→ 5 student marks</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <div style="color: var(--accent2); font-size: 12px; margin-bottom: 8px;">2D Array — shape: (3, 4) — like a spreadsheet table</div>
+          <div class="diag-row">
+            <div class="diag-label" style="width:60px">Row 0 →</div>
+            <div class="diag-cell orange">85</div>
+            <div class="diag-cell orange">92</div>
+            <div class="diag-cell orange">78</div>
+            <div class="diag-cell orange">96</div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-label" style="width:60px">Row 1 →</div>
+            <div class="diag-cell orange">70</div>
+            <div class="diag-cell orange">88</div>
+            <div class="diag-cell orange">91</div>
+            <div class="diag-cell orange">65</div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-label" style="width:60px">Row 2 →</div>
+            <div class="diag-cell orange">55</div>
+            <div class="diag-cell orange">72</div>
+            <div class="diag-cell orange">68</div>
+            <div class="diag-cell orange">80</div>
+          </div>
+          <div class="diag-row" style="margin-top: 4px;">
+            <div class="diag-label" style="width:60px"></div>
+            <div class="diag-label">Math</div>
+            <div class="diag-label">Sci</div>
+            <div class="diag-label">Eng</div>
+            <div class="diag-label">CS</div>
+          </div>
+        </div>
+
+        <div>
+          <div style="color: var(--accent4); font-size: 12px; margin-bottom: 6px;">3D Array — shape: (2, 3, 4) — like multiple tables (e.g. 2 classes, 3 students, 4 subjects)</div>
+          <div style="color: var(--muted); font-size: 12px;">Think of it as a stack of 2D arrays — used in images (height × width × RGB), time series, etc.</div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Python — creating arrays</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <pre><span class="kw">import</span> numpy <span class="kw">as</span> <span class="var">np</span>
+
+<span class="cmt"># ── 1D Array ──────────────────────────────────────</span>
+<span class="var">marks</span> = <span class="var">np</span>.<span class="fn">array</span>([<span class="num">85</span>, <span class="num">92</span>, <span class="num">78</span>, <span class="num">96</span>, <span class="num">88</span>])
+<span class="fn">print</span>(<span class="var">marks</span>)          <span class="cmt"># [85 92 78 96 88]</span>
+<span class="fn">print</span>(<span class="var">marks</span>.shape)    <span class="cmt"># (5,)  ← 5 elements, 1 dimension</span>
+
+<span class="cmt"># ── 2D Array (like a spreadsheet) ─────────────────</span>
+<span class="cmt"># 3 students × 4 subjects</span>
+<span class="var">scores</span> = <span class="var">np</span>.<span class="fn">array</span>([
+    [<span class="num">85</span>, <span class="num">92</span>, <span class="num">78</span>, <span class="num">96</span>],   <span class="cmt"># student 0</span>
+    [<span class="num">70</span>, <span class="num">88</span>, <span class="num">91</span>, <span class="num">65</span>],   <span class="cmt"># student 1</span>
+    [<span class="num">55</span>, <span class="num">72</span>, <span class="num">68</span>, <span class="num">80</span>],   <span class="cmt"># student 2</span>
+])
+<span class="fn">print</span>(<span class="var">scores</span>.shape)   <span class="cmt"># (3, 4)  ← 3 rows, 4 columns</span>
+<span class="fn">print</span>(<span class="var">scores</span>.ndim)    <span class="cmt"># 2</span>
+<span class="fn">print</span>(<span class="var">scores</span>.size)    <span class="cmt"># 12  ← total elements</span>
+
+<span class="cmt"># ── Useful creation functions ──────────────────────</span>
+<span class="var">np</span>.<span class="fn">zeros</span>((<span class="num">3</span>, <span class="num">4</span>))        <span class="cmt"># 3x4 matrix of 0.0</span>
+<span class="var">np</span>.<span class="fn">ones</span>((<span class="num">2</span>, <span class="num">5</span>))         <span class="cmt"># 2x5 matrix of 1.0</span>
+<span class="var">np</span>.<span class="fn">full</span>((<span class="num">3</span>, <span class="num">3</span>), <span class="num">99</span>)     <span class="cmt"># 3x3 filled with 99</span>
+<span class="var">np</span>.<span class="fn">arange</span>(<span class="num">0</span>, <span class="num">50</span>, <span class="num">5</span>)    <span class="cmt"># [0, 5, 10, 15 ... 45]</span>
+<span class="var">np</span>.<span class="fn">linspace</span>(<span class="num">0</span>, <span class="num">1</span>, <span class="num">5</span>)   <span class="cmt"># 5 evenly spaced from 0 to 1</span>
+<span class="var">np</span>.<span class="fn">eye</span>(<span class="num">3</span>)               <span class="cmt"># 3x3 identity matrix</span>
+
+<span class="cmt"># ── Random arrays (very common in data science) ───</span>
+<span class="var">rng</span> = <span class="var">np</span>.random.<span class="fn">default_rng</span>(<span class="num">42</span>)     <span class="cmt"># seed for reproducibility</span>
+<span class="var">sales</span> = <span class="var">rng</span>.<span class="fn">integers</span>(<span class="num">100</span>, <span class="num">500</span>, size=<span class="num">30</span>)  <span class="cmt"># 30 random sales figures</span></pre>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="callout-icon">✅</div>
+        <div class="callout-body">
+          <div class="callout-title">Key Array Properties to Always Know</div>
+          <div class="callout-text"><code>arr.shape</code> — dimensions tuple &nbsp;|&nbsp; <code>arr.ndim</code> — number of dimensions &nbsp;|&nbsp; <code>arr.size</code> — total elements &nbsp;|&nbsp; <code>arr.dtype</code> — data type &nbsp;|&nbsp; <code>arr.nbytes</code> — memory used</div>
+        </div>
+      </div>
+
+      <div class="exercise">
+        <div class="exercise-tag">Practice Exercise 1</div>
+        <h4>Create and Explore Arrays</h4>
+        <ol>
+          <li>Create a 1D array of 10 monthly sales figures (make up numbers between 1000–5000).</li>
+          <li>Create a 2D array with 5 employees and 3 months of sales data.</li>
+          <li>Print the <code>shape</code>, <code>ndim</code>, and <code>size</code> of each.</li>
+          <li>Create a 4×4 zero matrix, then set the diagonal to 1 using a loop (then check out <code>np.eye(4)</code> for the shortcut).</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════
+         SECTION 3 — INDEXING & SLICING
+    ══════════════════════════════════════ -->
+    <div class="section" id="indexing">
+      <div class="section-header">
+        <div class="section-icon icon-orange">✂️</div>
+        <div>
+          <div class="section-title">Indexing & Slicing</div>
+          <div class="section-sub">section 03 / accessing your data</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Getting Exactly the Data You Need</h3>
+        <p>In real analysis, you rarely need the whole dataset at once. Indexing lets you grab specific rows, columns, or elements. NumPy's slicing syntax is <code>[start:stop:step]</code> — same as Python lists, but extended to multiple dimensions.</p>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-title">2D Indexing: scores[row, column]</div>
+        <div style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">scores = [[85,92,78,96], [70,88,91,65], [55,72,68,80]]</div>
+        <div class="diag-row">
+          <div class="diag-label" style="width:80px; font-size:11px">scores[0,:]</div>
+          <div class="diag-cell green">85</div>
+          <div class="diag-cell green">92</div>
+          <div class="diag-cell green">78</div>
+          <div class="diag-cell green">96</div>
+          <div class="diag-label" style="font-size:11px">→ entire row 0</div>
+        </div>
+        <div class="diag-row">
+          <div class="diag-label" style="width:80px; font-size:11px">scores[:,1]</div>
+          <div class="diag-label" style="font-size:11px; color:var(--accent4)">col 1 only →</div>
+          <div class="diag-cell pink">92</div>
+          <div class="diag-cell pink">88</div>
+          <div class="diag-cell pink">72</div>
+        </div>
+        <div class="diag-row" style="margin-top:8px">
+          <div class="diag-label" style="width:80px; font-size:11px">scores[1,2]</div>
+          <div class="diag-label" style="font-size:11px; color:var(--accent2)">→ single value: 91 (row 1, col 2)</div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Python — indexing & slicing</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <pre><span class="var">scores</span> = <span class="var">np</span>.<span class="fn">array</span>([
+    [<span class="num">85</span>, <span class="num">92</span>, <span class="num">78</span>, <span class="num">96</span>],
+    [<span class="num">70</span>, <span class="num">88</span>, <span class="num">91</span>, <span class="num">65</span>],
+    [<span class="num">55</span>, <span class="num">72</span>, <span class="num">68</span>, <span class="num">80</span>],
+])
+
+<span class="cmt"># ── Basic indexing ─────────────────────────────────</span>
+<span class="var">scores</span>[<span class="num">0</span>, <span class="num">2</span>]      <span class="cmt"># 78  ← row 0, col 2 (single value)</span>
+<span class="var">scores</span>[<span class="num">1</span>]         <span class="cmt"># [70, 88, 91, 65]  ← entire row 1</span>
+<span class="var">scores</span>[:, <span class="num">0</span>]      <span class="cmt"># [85, 70, 55]  ← col 0 (all rows)</span>
+
+<span class="cmt"># ── Slicing ────────────────────────────────────────</span>
+<span class="var">scores</span>[<span class="num">0</span>:<span class="num">2</span>, <span class="num">1</span>:<span class="num">3</span>]   <span class="cmt"># rows 0-1, cols 1-2 → [[92,78],[88,91]]</span>
+<span class="var">scores</span>[:, <span class="num">1</span>:<span class="num">3</span>]    <span class="cmt"># all rows, cols 1 and 2</span>
+<span class="var">scores</span>[::<span class="num">2</span>]       <span class="cmt"># every other row</span>
+<span class="var">scores</span>[:, ::<span class="num">-1</span>]   <span class="cmt"># reverse column order</span>
+
+<span class="cmt"># ── Boolean (Fancy) Indexing — very powerful! ──────</span>
+<span class="var">marks</span> = <span class="var">np</span>.<span class="fn">array</span>([<span class="num">45</span>, <span class="num">82</span>, <span class="num">59</span>, <span class="num">90</span>, <span class="num">71</span>, <span class="num">38</span>, <span class="num">95</span>])
+
+<span class="cmt"># Who passed? (marks >= 60)</span>
+<span class="var">passed</span> = <span class="var">marks</span>[<span class="var">marks</span> <span class="op">>=</span> <span class="num">60</span>]
+<span class="fn">print</span>(<span class="var">passed</span>)   <span class="cmt"># [82, 90, 71, 95]</span>
+
+<span class="cmt"># Who scored between 60 and 85?</span>
+<span class="var">average</span> = <span class="var">marks</span>[(<span class="var">marks</span> <span class="op">>=</span> <span class="num">60</span>) <span class="op">&</span> (<span class="var">marks</span> <span class="op"><=</span> <span class="num">85</span>)]
+<span class="fn">print</span>(<span class="var">average</span>)  <span class="cmt"># [82, 71]</span>
+
+<span class="cmt"># Replace failing marks with 0 (data cleaning!)</span>
+<span class="var">marks</span>[<span class="var">marks</span> <span class="op"><</span> <span class="num">60</span>] = <span class="num">0</span>
+<span class="fn">print</span>(<span class="var">marks</span>)    <span class="cmt"># [0, 82, 0, 90, 71, 0, 95]</span>
+
+<span class="cmt"># ── Fancy indexing with arrays ─────────────────────</span>
+<span class="var">prices</span> = <span class="var">np</span>.<span class="fn">array</span>([<span class="num">200</span>, <span class="num">450</span>, <span class="num">125</span>, <span class="num">780</span>, <span class="num">310</span>])
+<span class="var">selected</span> = <span class="var">prices</span>[[<span class="num">0</span>, <span class="num">2</span>, <span class="num">4</span>]]  <span class="cmt"># pick specific items by index</span>
+<span class="fn">print</span>(<span class="var">selected</span>)               <span class="cmt"># [200, 125, 310]</span></pre>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-body">
+          <div class="callout-title">Views vs Copies — Critical Gotcha!</div>
+          <div class="callout-text">NumPy slices are <strong>views</strong>, not copies. Changing a slice changes the original array! Use <code>arr[1:3].copy()</code> to create an independent copy when needed.</div>
+        </div>
+      </div>
+
+      <div class="exercise">
+        <div class="exercise-tag">Practice Exercise 2</div>
+        <h4>Filter Sales Data</h4>
+        <ol>
+          <li>Create a 1D array of 12 monthly sales values (any numbers between 500–3000).</li>
+          <li>Extract only the months where sales exceeded 1500.</li>
+          <li>Find the indices (positions) of those high-sales months using <code>np.where()</code>.</li>
+          <li>From a 2D employee sales matrix (4 employees × 12 months), extract just the data for employees 1 and 3, for months 6–11.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════
+         SECTION 4 — DATA TYPES
+    ══════════════════════════════════════ -->
+    <div class="section" id="dtypes">
+      <div class="section-header">
+        <div class="section-icon icon-pink">🏷️</div>
+        <div>
+          <div class="section-title">Data Types (dtype)</div>
+          <div class="section-sub">section 04 / memory & precision</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Why Data Types Matter in Analysis</h3>
+        <p>Every NumPy array has a single data type (<code>dtype</code>). Unlike Python where a list can hold mixed types, NumPy arrays are homogeneous — all elements share one type. This is what makes them fast, but you need to choose types wisely.</p>
+        <p>Wrong dtype = wasted memory or silent precision loss. For example, storing percentages (0.0–1.0) as <code>int32</code> will truncate them all to <code>0</code>!</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>dtype</th><th>Range / Precision</th><th>When to Use</th></tr></thead>
+          <tbody>
+            <tr><td>int8</td><td>-128 to 127</td><td>Small counts, flags, labels</td></tr>
+            <tr><td>int32</td><td>-2B to 2B</td><td>General integers (IDs, counts)</td></tr>
+            <tr><td>int64</td><td>very large integers</td><td>Unix timestamps, large IDs</td></tr>
+            <tr><td>float32</td><td>~7 decimal digits</td><td>ML weights, large float datasets</td></tr>
+            <tr><td>float64</td><td>~15 decimal digits</td><td>Default for most analysis</td></tr>
+            <tr><td>bool</td><td>True / False</td><td>Masks, filters</td></tr>
+            <tr><td>complex128</td><td>complex numbers</td><td>Signal processing, FFT</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Python — working with dtypes</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <pre><span class="cmt"># ── Check and specify dtype ────────────────────────</span>
+<span class="var">a</span> = <span class="var">np</span>.<span class="fn">array</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>])
+<span class="fn">print</span>(<span class="var">a</span>.dtype)                     <span class="cmt"># int64 (default on 64-bit systems)</span>
+
+<span class="var">b</span> = <span class="var">np</span>.<span class="fn">array</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>], dtype=<span class="var">np</span>.float32)
+<span class="fn">print</span>(<span class="var">b</span>.dtype)                     <span class="cmt"># float32</span>
+
+<span class="cmt"># ── Type conversion (casting) ──────────────────────</span>
+<span class="var">prices</span> = <span class="var">np</span>.<span class="fn">array</span>([<span class="num">19.99</span>, <span class="num">34.50</span>, <span class="num">7.25</span>])
+<span class="var">int_prices</span> = <span class="var">prices</span>.<span class="fn">astype</span>(<span class="var">np</span>.int32)
+<span class="fn">print</span>(<span class="var">int_prices</span>)                  <span class="cmt"># [19, 34, 7] ← decimal truncated!</span>
+
+<span class="cmt"># ── Real example: memory saving ───────────────────</span>
+<span class="var">large</span> = <span class="var">np</span>.<span class="fn">random.randint</span>(<span class="num">0</span>, <span class="num">255</span>, size=(<span class="num">1000</span>, <span class="num">1000</span>))
+<span class="fn">print</span>(<span class="var">large</span>.nbytes)                <span class="cmt"># 8,000,000 bytes (int64)</span>
+<span class="var">small</span> = <span class="var">large</span>.<span class="fn">astype</span>(<span class="var">np</span>.uint8)   <span class="cmt"># pixel values 0-255 fit in uint8</span>
+<span class="fn">print</span>(<span class="var">small</span>.nbytes)                <span class="cmt"># 1,000,000 bytes ← 8× savings!</span>
+
+<span class="cmt"># ── Watch out for integer overflow! ───────────────</span>
+<span class="var">x</span> = <span class="var">np</span>.<span class="fn">array</span>([<span class="num">200</span>], dtype=<span class="var">np</span>.int8)
+<span class="fn">print</span>(<span class="var">x</span> + <span class="num">100</span>)  <span class="cmt"># [-44]  ← 300 overflows int8 range!</span></pre>
+      </div>
+
+      <div class="callout callout-err">
+        <div class="callout-icon">🚫</div>
+        <div class="callout-body">
+          <div class="callout-title">Common Mistake: Mixing Integers and Floats</div>
+          <div class="callout-text">If you create an array like <code>np.array([1, 2, 3])</code> and divide by 2, you get <code>[0, 1, 1]</code> (integer division)! Always ensure your array is float first: <code>np.array([1.0, 2.0, 3.0])</code> or <code>.astype(float)</code>.</div>
+        </div>
+      </div>
+
+      <div class="exercise">
+        <div class="exercise-tag">Practice Exercise 3</div>
+        <h4>Explore Data Types</h4>
+        <ol>
+          <li>Create an integer array of ages (18–65) for 10 people. What dtype is it?</li>
+          <li>Convert it to <code>float32</code> and verify with <code>.dtype</code>.</li>
+          <li>Create an array of 100 temperature readings in float64. Calculate the memory difference if converted to float32.</li>
+          <li>Create a boolean mask array that marks <code>True</code> for anyone over 30.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════
+         SECTION 5 — OPERATIONS
+    ══════════════════════════════════════ -->
+    <div class="section" id="operations">
+      <div class="section-header">
+        <div class="section-icon icon-yellow">⚡</div>
+        <div>
+          <div class="section-title">Array Operations</div>
+          <div class="section-sub">section 05 / math & statistics</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Vectorized Math — No Loops Needed</h3>
+        <p>The power of NumPy is that you can apply operations to entire arrays at once. An operation like <code>prices * 1.1</code> applies the multiplication to every element simultaneously — this is called <strong>vectorization</strong>.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Python — mathematical operations</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <pre><span class="var">sales</span> = <span class="var">np</span>.<span class="fn">array</span>([<span class="num">1200</span>, <span class="num">1450</span>, <span class="num">980</span>, <span class="num">2100</span>, <span class="num">1750</span>, <span class="num">890</span>])
+
+<span class="cmt"># ── Element-wise arithmetic ────────────────────────</span>
+<span class="var">sales</span> * <span class="num">1.15</span>          <span class="cmt"># apply 15% price increase to all</span>
+<span class="var">sales</span> - <span class="num">100</span>           <span class="cmt"># subtract 100 from each (discount)</span>
+<span class="var">sales</span> ** <span class="num">2</span>            <span class="cmt"># square each value</span>
+<span class="var">np</span>.<span class="fn">sqrt</span>(<span class="var">sales</span>)        <span class="cmt"># square root of each</span>
+<span class="var">np</span>.<span class="fn">log</span>(<span class="var">sales</span>)         <span class="cmt"># natural log (useful for log-normal data)</span>
+
+<span class="cmt"># ── Two arrays: element-wise ───────────────────────</span>
+<span class="var">cost</span>   = <span class="var">np</span>.<span class="fn">array</span>([<span class="num">800</span>, <span class="num">900</span>, <span class="num">600</span>, <span class="num">1500</span>, <span class="num">1000</span>, <span class="num">500</span>])
+<span class="var">profit</span> = <span class="var">sales</span> - <span class="var">cost</span>
+<span class="var">margin</span> = (<span class="var">profit</span> / <span class="var">sales</span>) * <span class="num">100</span>   <span class="cmt"># profit margin %</span>
+<span class="fn">print</span>(<span class="fn">np.round</span>(<span class="var">margin</span>, <span class="num">1</span>))         <span class="cmt"># [33.3, 37.9, 38.8, 28.6, 42.9, 43.8]</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Python — statistical operations (the heart of data analysis)</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <pre><span class="var">marks</span> = <span class="var">np</span>.<span class="fn">array</span>([[<span class="num">85</span>, <span class="num">92</span>, <span class="num">78</span>, <span class="num">96</span>],
+                    [<span class="num">70</span>, <span class="num">88</span>, <span class="num">91</span>, <span class="num">65</span>],
+                    [<span class="num">55</span>, <span class="num">72</span>, <span class="num">68</span>, <span class="num">80</span>]])
+
+<span class="cmt"># ── Global statistics ──────────────────────────────</span>
+<span class="fn">print</span>(<span class="var">np</span>.<span class="fn">mean</span>(<span class="var">marks</span>))       <span class="cmt"># 78.33 — overall class average</span>
+<span class="fn">print</span>(<span class="var">np</span>.<span class="fn">median</span>(<span class="var">marks</span>))     <span class="cmt"># 80.0</span>
+<span class="fn">print</span>(<span class="var">np</span>.<span class="fn">std</span>(<span class="var">marks</span>))        <span class="cmt"># standard deviation</span>
+<span class="fn">print</span>(<span class="var">np</span>.<span class="fn">min</span>(<span class="var">marks</span>))        <span class="cmt"># 55 — lowest score overall</span>
+<span class="fn">print</span>(<span class="var">np</span>.<span class="fn">max</span>(<span class="var">marks</span>))        <span class="cmt"># 96 — highest score</span>
+<span class="fn">print</span>(<span class="var">np</span>.<span class="fn">percentile</span>(<span class="var">marks</span>, <span class="num">75</span>))  <span class="cmt"># 75th percentile = 90.25</span>
+
+<span class="cmt"># ── Axis-based statistics (super useful!) ──────────</span>
+<span class="cmt"># axis=0 → collapse rows (result per COLUMN = per subject)</span>
+<span class="var">subject_avg</span> = <span class="var">np</span>.<span class="fn">mean</span>(<span class="var">marks</span>, axis=<span class="num">0</span>)
+<span class="fn">print</span>(<span class="var">subject_avg</span>)   <span class="cmt"># [70.0, 84.0, 79.0, 80.3] — avg per subject</span>
+
+<span class="cmt"># axis=1 → collapse columns (result per ROW = per student)</span>
+<span class="var">student_avg</span> = <span class="var">np</span>.<span class="fn">mean</span>(<span class="var">marks</span>, axis=<span class="num">1</span>)
+<span class="fn">print</span>(<span class="var">student_avg</span>)   <span class="cmt"># [87.75, 78.5, 68.75] — avg per student</span>
+
+<span class="cmt"># ── Finding positions ──────────────────────────────</span>
+<span class="fn">print</span>(<span class="var">np</span>.<span class="fn">argmax</span>(<span class="var">student_avg</span>))  <span class="cmt"># 0 — student 0 has highest avg</span>
+<span class="fn">print</span>(<span class="var">np</span>.<span class="fn">argsort</span>(<span class="var">student_avg</span>)) <span class="cmt"># [2, 1, 0] — sorted ranking</span>
+
+<span class="cmt"># ── Cumulative operations ──────────────────────────</span>
+<span class="var">monthly_sales</span> = <span class="var">np</span>.<span class="fn">array</span>([<span class="num">100</span>, <span class="num">150</span>, <span class="num">120</span>, <span class="num">200</span>])
+<span class="fn">print</span>(<span class="var">np</span>.<span class="fn">cumsum</span>(<span class="var">monthly_sales</span>)) <span class="cmt"># [100, 250, 370, 570] — running total</span></pre>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">📌</div>
+        <div class="callout-body">
+          <div class="callout-title">Understanding axis=0 vs axis=1</div>
+          <div class="callout-text"><strong>axis=0</strong> operates "down the rows" → produces one result per column. <strong>axis=1</strong> operates "across the columns" → produces one result per row. A helpful mnemonic: axis=0 is the "column aggregator", axis=1 is the "row aggregator".</div>
+        </div>
+      </div>
+
+      <div class="exercise">
+        <div class="exercise-tag">Practice Exercise 4</div>
+        <h4>Sales Performance Analysis</h4>
+        <ol>
+          <li>Create a 4×6 array representing 4 salespeople's performance over 6 months.</li>
+          <li>Calculate each salesperson's average, total, and best month.</li>
+          <li>Calculate each month's team total and identify the best-performing month.</li>
+          <li>Find which salesperson had the highest single-month performance using <code>np.unravel_index(np.argmax(arr), arr.shape)</code>.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════
+         SECTION 6 — BROADCASTING
+    ══════════════════════════════════════ -->
+    <div class="section" id="broadcasting">
+      <div class="section-header">
+        <div class="section-icon icon-purple">📡</div>
+        <div>
+          <div class="section-title">Broadcasting</div>
+          <div class="section-sub">section 06 / the magic rule</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Operations Between Arrays of Different Shapes</h3>
+        <p>Broadcasting is NumPy's mechanism for performing operations on arrays with different shapes — without copying data. It's one of NumPy's most powerful (and initially confusing) features.</p>
+        <p>The rule: Arrays are compatible if, starting from the trailing dimensions, their sizes either match or one of them is 1.</p>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-title">Broadcasting Visualization</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text); line-height: 2;">
+<div style="color:var(--accent2)">Example: Subtract the column mean from each row</div>
+<br>
+<div>marks shape:    <span style="color:var(--accent3)">(3, 4)</span>     <span style="color:var(--muted)">← 3 students, 4 subjects</span></div>
+<div>col_mean shape: <span style="color:var(--accent3)">(1, 4)</span>  →  <span style="color:var(--accent)">(3, 4)</span>  <span style="color:var(--muted)">← broadcast across rows</span></div>
+<br>
+<div style="color:var(--muted)">NumPy "stretches" the (1,4) array to (3,4) conceptually:</div>
+<br>
+<div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+  <div>
+    <div style="color:var(--muted);font-size:11px;margin-bottom:6px">marks (3×4)</div>
+    <div class="diag-row"><div class="diag-cell orange">85</div><div class="diag-cell orange">92</div><div class="diag-cell orange">78</div><div class="diag-cell orange">96</div></div>
+    <div class="diag-row"><div class="diag-cell orange">70</div><div class="diag-cell orange">88</div><div class="diag-cell orange">91</div><div class="diag-cell orange">65</div></div>
+    <div class="diag-row"><div class="diag-cell orange">55</div><div class="diag-cell orange">72</div><div class="diag-cell orange">68</div><div class="diag-cell orange">80</div></div>
+  </div>
+  <div style="color:var(--text); font-size:20px">−</div>
+  <div>
+    <div style="color:var(--muted);font-size:11px;margin-bottom:6px">col_mean (1×4)</div>
+    <div class="diag-row"><div class="diag-cell green">70</div><div class="diag-cell green">84</div><div class="diag-cell green">79</div><div class="diag-cell green">80</div></div>
+  </div>
+  <div style="color:var(--text); font-size:20px">=</div>
+  <div>
+    <div style="color:var(--muted);font-size:11px;margin-bottom:6px">centered (3×4)</div>
+    <div class="diag-row"><div class="diag-cell blue">+15</div><div class="diag-cell blue">+8</div><div class="diag-cell blue">-1</div><div class="diag-cell blue">+16</div></div>
+    <div class="diag-row"><div class="diag-cell blue">0</div><div class="diag-cell blue">+4</div><div class="diag-cell blue">+12</div><div class="diag-cell blue">-15</div></div>
+    <div class="diag-row"><div class="diag-cell blue">-15</div><div class="diag-cell blue">-12</div><div class="diag-cell blue">-11</div><div class="diag-cell blue">0</div></div>
+  </div>
+</div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Python — broadcasting examples</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <pre><span class="var">scores</span> = <span class="var">np</span>.<span class="fn">array</span>([[<span class="num">85</span>, <span class="num">92</span>, <span class="num">78</span>, <span class="num">96</span>],
+                    [<span class="num">70</span>, <span class="num">88</span>, <span class="num">91</span>, <span class="num">65</span>],
+                    [<span class="num">55</span>, <span class="num">72</span>, <span class="num">68</span>, <span class="num">80</span>]])  <span class="cmt"># shape (3, 4)</span>
+
+<span class="cmt"># ── Scalar broadcasting (simplest) ────────────────</span>
+<span class="var">scores_scaled</span> = <span class="var">scores</span> * <span class="num">1.1</span>   <span class="cmt"># scalar → broadcast to (3,4)</span>
+
+<span class="cmt"># ── Row vector: normalize each subject ────────────</span>
+<span class="var">col_mean</span> = <span class="var">np</span>.<span class="fn">mean</span>(<span class="var">scores</span>, axis=<span class="num">0</span>)    <span class="cmt"># shape (4,)</span>
+<span class="var">centered</span> = <span class="var">scores</span> - <span class="var">col_mean</span>           <span class="cmt"># (3,4) - (4,) → works!</span>
+
+<span class="cmt"># ── Column vector: subtract each student's avg ────</span>
+<span class="var">row_mean</span> = <span class="var">np</span>.<span class="fn">mean</span>(<span class="var">scores</span>, axis=<span class="num">1</span>, keepdims=<span class="kw">True</span>)  <span class="cmt"># shape (3,1) ← KEY!</span>
+<span class="var">deviation</span> = <span class="var">scores</span> - <span class="var">row_mean</span>              <span class="cmt"># (3,4) - (3,1) → works!</span>
+<span class="fn">print</span>(<span class="var">deviation</span>)  <span class="cmt"># how far each score is from that student's mean</span>
+
+<span class="cmt"># ── Practical: apply different bonuses per subject ─</span>
+<span class="var">subject_weights</span> = <span class="var">np</span>.<span class="fn">array</span>([<span class="num">0.3</span>, <span class="num">0.3</span>, <span class="num">0.2</span>, <span class="num">0.2</span>])  <span class="cmt"># (4,)</span>
+<span class="var">weighted_scores</span> = <span class="var">scores</span> * <span class="var">subject_weights</span>          <span class="cmt"># (3,4) × (4,)</span>
+<span class="var">final_grade</span>     = <span class="var">weighted_scores</span>.<span class="fn">sum</span>(axis=<span class="num">1</span>)        <span class="cmt"># (3,)</span>
+<span class="fn">print</span>(<span class="var">final_grade</span>)  <span class="cmt"># [87.4, 79.7, 68.7]</span></pre>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-body">
+          <div class="callout-title">keepdims=True — Don't Forget It!</div>
+          <div class="callout-text">When using <code>axis=1</code> for column operations, the result has shape <code>(3,)</code> but you need <code>(3,1)</code> for broadcasting to work. Always use <code>keepdims=True</code>: <code>np.mean(arr, axis=1, keepdims=True)</code>.</div>
+        </div>
+      </div>
+
+      <div class="exercise">
+        <div class="exercise-tag">Practice Exercise 5</div>
+        <h4>Normalize a Dataset</h4>
+        <ol>
+          <li>Create a 5×3 array representing 5 products and 3 attributes (price, weight, rating).</li>
+          <li>Normalize each column to a 0–1 range using: <code>(x - min) / (max - min)</code> — use broadcasting!</li>
+          <li>Standardize each row (subtract row mean, divide by row std) — use <code>keepdims=True</code>.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════
+         SECTION 7 — RESHAPING
+    ══════════════════════════════════════ -->
+    <div class="section" id="reshaping">
+      <div class="section-header">
+        <div class="section-icon icon-green">🔄</div>
+        <div>
+          <div class="section-title">Reshaping & Transformation</div>
+          <div class="section-sub">section 07 / changing structure</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Changing Shape Without Changing Data</h3>
+        <p>Often your data comes in one shape but your algorithm needs another. Reshaping operations change the structure of an array without copying its underlying data.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Python — reshaping operations</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <pre><span class="cmt"># ── reshape ────────────────────────────────────────</span>
+<span class="var">flat</span>    = <span class="var">np</span>.<span class="fn">arange</span>(<span class="num">12</span>)             <span class="cmt"># [0,1,2,...,11] shape (12,)</span>
+<span class="var">matrix</span>  = <span class="var">flat</span>.<span class="fn">reshape</span>(<span class="num">3</span>, <span class="num">4</span>)        <span class="cmt"># shape (3,4)</span>
+<span class="var">cube</span>    = <span class="var">flat</span>.<span class="fn">reshape</span>(<span class="num">2</span>, <span class="num">2</span>, <span class="num">3</span>)     <span class="cmt"># shape (2,2,3)</span>
+<span class="var">auto</span>    = <span class="var">flat</span>.<span class="fn">reshape</span>(<span class="num">3</span>, -<span class="num">1</span>)       <span class="cmt"># -1 = "figure it out" → (3,4)</span>
+<span class="var">col</span>     = <span class="var">flat</span>.<span class="fn">reshape</span>(-<span class="num">1</span>, <span class="num">1</span>)      <span class="cmt"># (12,1) → column vector</span>
+
+<span class="cmt"># ── flatten vs ravel ───────────────────────────────</span>
+<span class="var">matrix</span>.<span class="fn">flatten</span>()   <span class="cmt"># returns a COPY: always 1D</span>
+<span class="var">matrix</span>.<span class="fn">ravel</span>()     <span class="cmt"># returns a VIEW when possible: faster</span>
+
+<span class="cmt"># ── transpose ──────────────────────────────────────</span>
+<span class="var">data</span> = <span class="var">np</span>.<span class="fn">array</span>([[<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>],
+                  [<span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>]])    <span class="cmt"># shape (2, 3)</span>
+<span class="var">data</span>.<span class="fn">T</span>                            <span class="cmt"># shape (3, 2) — rows ↔ columns</span>
+
+<span class="cmt"># ── stacking & splitting ───────────────────────────</span>
+<span class="var">a</span> = <span class="var">np</span>.<span class="fn">array</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>])
+<span class="var">b</span> = <span class="var">np</span>.<span class="fn">array</span>([<span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>])
+
+<span class="var">np</span>.<span class="fn">vstack</span>([<span class="var">a</span>, <span class="var">b</span>])   <span class="cmt"># [[1,2,3],[4,5,6]] — stack as rows</span>
+<span class="var">np</span>.<span class="fn">hstack</span>([<span class="var">a</span>, <span class="var">b</span>])   <span class="cmt"># [1,2,3,4,5,6] — concatenate horizontally</span>
+<span class="var">np</span>.<span class="fn">column_stack</span>([<span class="var">a</span>, <span class="var">b</span>])  <span class="cmt"># [[1,4],[2,5],[3,6]] — as 2 columns</span>
+
+<span class="cmt"># ── Real use case: prepare features for ML ─────────</span>
+<span class="var">age</span>    = <span class="var">np</span>.<span class="fn">array</span>([<span class="num">25</span>, <span class="num">32</span>, <span class="num">41</span>, <span class="num">28</span>])
+<span class="var">salary</span> = <span class="var">np</span>.<span class="fn">array</span>([<span class="num">40000</span>, <span class="num">65000</span>, <span class="num">90000</span>, <span class="num">50000</span>])
+<span class="var">X</span> = <span class="var">np</span>.<span class="fn">column_stack</span>([<span class="var">age</span>, <span class="var">salary</span>])  <span class="cmt"># (4, 2) feature matrix</span>
+<span class="fn">print</span>(<span class="var">X</span>.shape)                          <span class="cmt"># (4, 2) — ready for sklearn!</span></pre>
+      </div>
+
+      <div class="exercise">
+        <div class="exercise-tag">Practice Exercise 6</div>
+        <h4>Data Restructuring</h4>
+        <ol>
+          <li>You receive sensor data as a 1D array of 24 readings. Reshape it into a 4×6 matrix (4 time blocks × 6 sensors).</li>
+          <li>From a 3×4 scores matrix, stack two classes' results vertically to get a 6×4 combined result.</li>
+          <li>Transpose a feature matrix from shape (features, samples) to (samples, features) — the standard ML format.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════
+         SECTION 8 — COMMON MISTAKES
+    ══════════════════════════════════════ -->
+    <div class="section" id="mistakes">
+      <div class="section-header">
+        <div class="section-icon icon-pink">🚨</div>
+        <div>
+          <div class="section-title">Common Mistakes & How to Avoid Them</div>
+          <div class="section-sub">section 08 / don't trip on these</div>
+        </div>
+      </div>
+
+      <div class="mistake-grid">
+        <div class="mistake-card">
+          <div class="mistake-label label-bad">❌ Wrong</div>
+          <div class="mistake-code">a = np.array([1,2,3])
+b = a
+b[0] = 99
+# a is also changed!</div>
+          <div class="mistake-desc">Assignment creates a reference, not a copy.</div>
+        </div>
+        <div class="mistake-card">
+          <div class="mistake-label label-good">✅ Correct</div>
+          <div class="mistake-code">a = np.array([1,2,3])
+b = a.copy()
+b[0] = 99
+# a is unchanged ✓</div>
+          <div class="mistake-desc">Use <code>.copy()</code> to create an independent array.</div>
+        </div>
+
+        <div class="mistake-card">
+          <div class="mistake-label label-bad">❌ Wrong</div>
+          <div class="mistake-code">marks = np.array([85,90,78])
+avg = marks / 2
+# Works but might give
+# integer truncation</div>
+          <div class="mistake-desc">Array dtype may be integer — division silently truncates.</div>
+        </div>
+        <div class="mistake-card">
+          <div class="mistake-label label-good">✅ Correct</div>
+          <div class="mistake-code">marks = np.array([85,90,78],
+                   dtype=float)
+avg = marks / 2.0
+# [42.5, 45.0, 39.0] ✓</div>
+          <div class="mistake-desc">Specify <code>dtype=float</code> or use float literals.</div>
+        </div>
+
+        <div class="mistake-card">
+          <div class="mistake-label label-bad">❌ Wrong</div>
+          <div class="mistake-code">a = np.mean(arr, axis=1)
+# shape: (3,)
+result = arr - a
+# ValueError! ← shape mismatch</div>
+          <div class="mistake-desc">Row mean has wrong shape for broadcasting.</div>
+        </div>
+        <div class="mistake-card">
+          <div class="mistake-label label-good">✅ Correct</div>
+          <div class="mistake-code">a = np.mean(arr, axis=1,
+            keepdims=True)
+# shape: (3, 1)
+result = arr - a  # works ✓</div>
+          <div class="mistake-desc">Use <code>keepdims=True</code> for row-wise operations.</div>
+        </div>
+
+        <div class="mistake-card">
+          <div class="mistake-label label-bad">❌ Wrong</div>
+          <div class="mistake-code">if arr == other_arr:
+    # does element comparison
+    # returns array of bools!
+    # ambiguous truth value error</div>
+          <div class="mistake-desc">Never use <code>==</code> to compare arrays directly.</div>
+        </div>
+        <div class="mistake-card">
+          <div class="mistake-label label-good">✅ Correct</div>
+          <div class="mistake-code">np.array_equal(arr, other_arr)
+# Returns True/False ✓
+
+np.allclose(arr, other_arr)
+# For float comparisons ✓</div>
+          <div class="mistake-desc">Use <code>np.array_equal()</code> or <code>np.allclose()</code>.</div>
+        </div>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="callout-icon">🔍</div>
+        <div class="callout-body">
+          <div class="callout-title">Debug Like a Pro</div>
+          <div class="callout-text">When you get a shape error, always print <code>arr.shape</code> for every array involved. 90% of NumPy bugs are shape mismatches. Insert <code>print(arr.shape)</code> liberally while debugging — remove them when done.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════
+         SECTION 9 — MINI PROJECT
+    ══════════════════════════════════════ -->
+    <div class="section" id="project">
+      <div class="section-header">
+        <div class="section-icon icon-orange">🏗️</div>
+        <div>
+          <div class="section-title">Mini Project</div>
+          <div class="section-sub">section 09 / putting it all together</div>
+        </div>
+      </div>
+
+      <div class="project-banner">
+        <div class="project-badge">📊 mini project</div>
+        <h3>Student Examination Analysis System</h3>
+        <p>You've been given marks data for 8 students across 5 subjects. Your task is to build a complete analysis pipeline using only NumPy — calculate stats, assign grades, identify top performers, and normalize scores.</p>
+
+        <div class="code-block" style="margin-top: 16px;">
+          <div class="code-header">
+            <span class="code-lang">Python — complete mini project</span>
+            <div class="code-dots"><span></span><span></span><span></span></div>
+          </div>
+          <pre><span class="kw">import</span> numpy <span class="kw">as</span> <span class="var">np</span>
+
+<span class="cmt"># ════════════════════════════════════════════════
+# DATASET: 8 students × 5 subjects
+# Subjects: Math, Physics, Chemistry, CS, English
+# ════════════════════════════════════════════════</span>
+<span class="var">marks</span> = <span class="var">np</span>.<span class="fn">array</span>([
+    [<span class="num">88</span>, <span class="num">76</span>, <span class="num">91</span>, <span class="num">95</span>, <span class="num">82</span>],   <span class="cmt"># Ali</span>
+    [<span class="num">72</span>, <span class="num">85</span>, <span class="num">68</span>, <span class="num">90</span>, <span class="num">77</span>],   <span class="cmt"># Sara</span>
+    [<span class="num">55</span>, <span class="num">60</span>, <span class="num">48</span>, <span class="num">70</span>, <span class="num">65</span>],   <span class="cmt"># Hamza</span>
+    [<span class="num">95</span>, <span class="num">92</span>, <span class="num">88</span>, <span class="num">98</span>, <span class="num">91</span>],   <span class="cmt"># Ayesha</span>
+    [<span class="num">40</span>, <span class="num">38</span>, <span class="num">55</span>, <span class="num">45</span>, <span class="num">52</span>],   <span class="cmt"># Usman</span>
+    [<span class="num">78</span>, <span class="num">82</span>, <span class="num">75</span>, <span class="num">80</span>, <span class="num">88</span>],   <span class="cmt"># Zara</span>
+    [<span class="num">65</span>, <span class="num">70</span>, <span class="num">72</span>, <span class="num">60</span>, <span class="num">68</span>],   <span class="cmt"># Bilal</span>
+    [<span class="num">82</span>, <span class="num">88</span>, <span class="num">85</span>, <span class="num">79</span>, <span class="num">90</span>],   <span class="cmt"># Fatima</span>
+], dtype=<span class="var">np</span>.float64)
+
+<span class="var">students</span> = [<span class="str">"Ali"</span>, <span class="str">"Sara"</span>, <span class="str">"Hamza"</span>, <span class="str">"Ayesha"</span>,
+            <span class="str">"Usman"</span>, <span class="str">"Zara"</span>, <span class="str">"Bilal"</span>, <span class="str">"Fatima"</span>]
+<span class="var">subjects</span> = [<span class="str">"Math"</span>, <span class="str">"Physics"</span>, <span class="str">"Chem"</span>, <span class="str">"CS"</span>, <span class="str">"Eng"</span>]
+
+<span class="cmt"># ── STEP 1: Basic Statistics ──────────────────────</span>
+<span class="var">student_avg</span>  = <span class="var">np</span>.<span class="fn">mean</span>(<span class="var">marks</span>, axis=<span class="num">1</span>)     <span class="cmt"># per student</span>
+<span class="var">student_max</span>  = <span class="var">np</span>.<span class="fn">max</span>(<span class="var">marks</span>, axis=<span class="num">1</span>)
+<span class="var">student_min</span>  = <span class="var">np</span>.<span class="fn">min</span>(<span class="var">marks</span>, axis=<span class="num">1</span>)
+<span class="var">student_std</span>  = <span class="var">np</span>.<span class="fn">std</span>(<span class="var">marks</span>, axis=<span class="num">1</span>)
+<span class="var">subject_avg</span>  = <span class="var">np</span>.<span class="fn">mean</span>(<span class="var">marks</span>, axis=<span class="num">0</span>)     <span class="cmt"># per subject</span>
+
+<span class="fn">print</span>(<span class="str">"=== STUDENT AVERAGES ==="</span>)
+<span class="kw">for</span> i, name <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="var">students</span>):
+    <span class="fn">print</span>(<span class="str">f"  {name:8s}: {student_avg[i]:.1f}  (std: {student_std[i]:.1f})"</span>)
+
+<span class="fn">print</span>(<span class="str">"\n=== SUBJECT AVERAGES ==="</span>)
+<span class="kw">for</span> i, subj <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="var">subjects</span>):
+    <span class="fn">print</span>(<span class="str">f"  {subj:10s}: {subject_avg[i]:.1f}"</span>)
+
+<span class="cmt"># ── STEP 2: Grade Assignment using np.where ───────</span>
+<span class="kw">def</span> <span class="fn">assign_grade</span>(<span class="var">avg</span>):
+    <span class="kw">return</span> <span class="var">np</span>.<span class="fn">where</span>(<span class="var">avg</span> <span class="op">>=</span> <span class="num">90</span>, <span class="str">'A'</span>,
+           <span class="var">np</span>.<span class="fn">where</span>(<span class="var">avg</span> <span class="op">>=</span> <span class="num">80</span>, <span class="str">'B'</span>,
+           <span class="var">np</span>.<span class="fn">where</span>(<span class="var">avg</span> <span class="op">>=</span> <span class="num">70</span>, <span class="str">'C'</span>,
+           <span class="var">np</span>.<span class="fn">where</span>(<span class="var">avg</span> <span class="op">>=</span> <span class="num">60</span>, <span class="str">'D'</span>, <span class="str">'F'</span>))))
+
+<span class="var">grades</span> = <span class="fn">assign_grade</span>(<span class="var">student_avg</span>)
+<span class="fn">print</span>(<span class="str">"\n=== GRADES ==="</span>)
+<span class="kw">for</span> i, name <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="var">students</span>):
+    <span class="fn">print</span>(<span class="str">f"  {name:8s}: {grades[i]}  ({student_avg[i]:.1f})"</span>)
+
+<span class="cmt"># ── STEP 3: Rankings ──────────────────────────────</span>
+<span class="var">rank_order</span> = <span class="var">np</span>.<span class="fn">argsort</span>(<span class="var">student_avg</span>)[::<span class="num">-1</span>]  <span class="cmt"># descending</span>
+<span class="fn">print</span>(<span class="str">"\n=== STUDENT RANKINGS ==="</span>)
+<span class="kw">for</span> rank, idx <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="var">rank_order</span>, <span class="num">1</span>):
+    <span class="fn">print</span>(<span class="str">f"  #{rank}. {students[idx]:8s}: {student_avg[idx]:.1f}"</span>)
+
+<span class="cmt"># ── STEP 4: Identify At-Risk Students ─────────────</span>
+<span class="var">at_risk</span> = <span class="var">student_avg</span> <span class="op"><</span> <span class="num">60</span>
+<span class="fn">print</span>(<span class="str">"\n=== AT-RISK STUDENTS ==="</span>)
+<span class="var">at_risk_names</span> = [<span class="var">students</span>[i] <span class="kw">for</span> i <span class="kw">in</span> <span class="var">np</span>.<span class="fn">where</span>(<span class="var">at_risk</span>)[<span class="num">0</span>]]
+<span class="fn">print</span>(<span class="str">f"  {at_risk_names}"</span>)
+
+<span class="cmt"># ── STEP 5: Score Normalization (0-100 scale) ─────</span>
+<span class="cmt"># Min-max normalize each subject independently</span>
+<span class="var">col_min</span> = <span class="var">marks</span>.<span class="fn">min</span>(axis=<span class="num">0</span>)
+<span class="var">col_max</span> = <span class="var">marks</span>.<span class="fn">max</span>(axis=<span class="num">0</span>)
+<span class="var">normalized</span> = (<span class="var">marks</span> - <span class="var">col_min</span>) / (<span class="var">col_max</span> - <span class="var">col_min</span>) * <span class="num">100</span>
+<span class="fn">print</span>(<span class="str">"\n=== NORMALIZED SCORES (first 3 students) ==="</span>)
+<span class="fn">print</span>(<span class="var">np</span>.<span class="fn">round</span>(<span class="var">normalized</span>[:<span class="num">3</span>], <span class="num">1</span>))
+
+<span class="cmt"># ── STEP 6: Class-wide summary ────────────────────</span>
+<span class="fn">print</span>(<span class="str">"\n=== CLASS SUMMARY ==="</span>)
+<span class="fn">print</span>(<span class="str">f"  Overall average: {np.mean(marks):.1f}"</span>)
+<span class="fn">print</span>(<span class="str">f"  Pass rate:       {(student_avg >= 60).mean()*100:.0f}%"</span>)
+<span class="fn">print</span>(<span class="str">f"  Top scorer:      {students[np.argmax(student_avg)]}"</span>)
+<span class="fn">print</span>(<span class="str">f"  Hardest subject: {subjects[np.argmin(subject_avg)]}"</span>)
+<span class="fn">print</span>(<span class="str">f"  Easiest subject: {subjects[np.argmax(subject_avg)]}"</span>)
+
+<span class="cmt"># ── STEP 7: Correlation between subjects ──────────</span>
+<span class="var">corr_matrix</span> = <span class="var">np</span>.<span class="fn">corrcoef</span>(<span class="var">marks</span>.T)  <span class="cmt"># .T gives subject-subject corr</span>
+<span class="fn">print</span>(<span class="str">f"\n  Math-CS correlation: {corr_matrix[0,3]:.3f}"</span>)  <span class="cmt"># expect high</span></pre>
+        </div>
+
+        <div class="callout callout-tip" style="margin-top: 16px;">
+          <div class="callout-icon">🚀</div>
+          <div class="callout-body">
+            <div class="callout-title">Extend the Project</div>
+            <div class="callout-text">Try adding: weighted grades (CS + Math count more), detecting outliers (marks beyond 2 std devs), a "curve" that adds 5 points to everyone in the lowest-scoring subject, or generating a random dataset of 100 students to test at scale.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════
+         SECTION 10 — NUMPY + PANDAS
+    ══════════════════════════════════════ -->
+    <div class="section" id="pandas">
+      <div class="section-header">
+        <div class="section-icon icon-blue">🔗</div>
+        <div>
+          <div class="section-title">NumPy → Pandas → Data Science</div>
+          <div class="section-sub">section 10 / the bigger picture</div>
+        </div>
+      </div>
+
+      <div class="connection-grid">
+        <div class="conn-box">
+          <h4 style="color: var(--accent3)">NumPy</h4>
+          <p>Raw numerical arrays, vectorized math, memory-efficient, low-level operations</p>
+        </div>
+        <div class="conn-arrow">→</div>
+        <div class="conn-box">
+          <h4 style="color: var(--accent2)">Pandas</h4>
+          <p>Labeled DataFrames, CSV/SQL I/O, mixed types, built on NumPy arrays underneath</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>How They Work Together</h3>
+        <p>Every Pandas DataFrame column is secretly a NumPy array (or a Pandas extension type). When you call <code>.values</code> or <code>.to_numpy()</code> on a DataFrame, you get a NumPy array back. This interoperability is seamless.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Python — NumPy ↔ Pandas workflow</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <pre><span class="kw">import</span> numpy <span class="kw">as</span> <span class="var">np</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> <span class="var">pd</span>
+
+<span class="cmt"># ── Pandas → NumPy ─────────────────────────────────</span>
+<span class="var">df</span> = <span class="var">pd</span>.<span class="fn">read_csv</span>(<span class="str">'sales.csv'</span>)
+<span class="var">arr</span> = <span class="var">df</span>[<span class="str">'revenue'</span>].<span class="fn">to_numpy</span>()         <span class="cmt"># Pandas Series → NumPy array</span>
+<span class="var">matrix</span> = <span class="var">df</span>[[<span class="str">'q1'</span>,<span class="str">'q2'</span>,<span class="str">'q3'</span>]].<span class="fn">to_numpy</span>()  <span class="cmt"># DataFrame → 2D NumPy array</span>
+
+<span class="cmt"># ── NumPy → Pandas ─────────────────────────────────</span>
+<span class="var">marks_arr</span> = <span class="var">np</span>.<span class="fn">array</span>([[<span class="num">85</span>,<span class="num">92</span>,<span class="num">78</span>],[<span class="num">70</span>,<span class="num">88</span>,<span class="num">91</span>]])
+<span class="var">df</span> = <span class="var">pd</span>.<span class="fn">DataFrame</span>(
+    <span class="var">marks_arr</span>,
+    columns=[<span class="str">'Math'</span>,<span class="str">'Physics'</span>,<span class="str">'CS'</span>],
+    index=[<span class="str">'Ali'</span>, <span class="str">'Sara'</span>]
+)
+
+<span class="cmt"># ── Use NumPy inside Pandas operations ─────────────</span>
+<span class="var">df</span>[<span class="str">'log_revenue'</span>] = <span class="var">np</span>.<span class="fn">log</span>(<span class="var">df</span>[<span class="str">'revenue'</span>])      <span class="cmt"># log transform</span>
+<span class="var">df</span>[<span class="str">'capped'</span>] = <span class="var">np</span>.<span class="fn">clip</span>(<span class="var">df</span>[<span class="str">'revenue'</span>], <span class="num">0</span>, <span class="num">1000</span>)  <span class="cmt"># cap at 1000</span>
+<span class="var">df</span>[<span class="str">'zscore'</span>] = (<span class="var">df</span>[<span class="str">'revenue'</span>] - <span class="var">np</span>.<span class="fn">mean</span>(<span class="var">df</span>[<span class="str">'revenue'</span>])) / \
+               <span class="var">np</span>.<span class="fn">std</span>(<span class="var">df</span>[<span class="str">'revenue'</span>])             <span class="cmt"># z-score normalize</span>
+
+<span class="cmt"># ── Typical DS Pipeline ────────────────────────────</span>
+<span class="cmt"># 1. Load with Pandas (handles CSV, types, labels)</span>
+<span class="var">df</span> = <span class="var">pd</span>.<span class="fn">read_csv</span>(<span class="str">'data.csv'</span>)
+<span class="cmt"># 2. Clean with Pandas (drop nulls, fix types)</span>
+<span class="var">df</span> = <span class="var">df</span>.<span class="fn">dropna</span>()
+<span class="cmt"># 3. Extract numeric array for computation</span>
+<span class="var">X</span> = <span class="var">df</span>[<span class="var">feature_cols</span>].<span class="fn">to_numpy</span>()
+<span class="cmt"># 4. Process with NumPy (normalize, transform)</span>
+<span class="var">X_norm</span> = (<span class="var">X</span> - <span class="var">X</span>.<span class="fn">mean</span>(axis=<span class="num">0</span>)) / <span class="var">X</span>.<span class="fn">std</span>(axis=<span class="num">0</span>)
+<span class="cmt"># 5. Feed into scikit-learn model (expects NumPy)</span>
+<span class="var">model</span>.<span class="fn">fit</span>(<span class="var">X_norm</span>, <span class="var">y</span>)</pre>
+      </div>
+
+      <div class="card">
+        <h3>The Data Science Stack — Where NumPy Fits</h3>
+        <div class="workflow">
+          <div class="workflow-step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h4>Data Ingestion — Pandas</h4>
+              <p>Load CSV, Excel, SQL, JSON. Handle missing values, column types, labels.</p>
+            </div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h4>Numerical Processing — NumPy</h4>
+              <p>Vectorized math, normalization, statistical computation, feature engineering on raw arrays.</p>
+            </div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h4>Visualization — Matplotlib / Seaborn</h4>
+              <p>Both accept NumPy arrays directly. Plot distributions, correlations, time series.</p>
+            </div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <h4>Modelling — Scikit-learn / TensorFlow</h4>
+              <p>Every ML library expects NumPy arrays as input. Your NumPy skills transfer directly.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise">
+        <div class="exercise-tag">Final Challenge</div>
+        <h4>End-to-End Mini Pipeline</h4>
+        <ol>
+          <li>Generate a synthetic dataset: 50 students, 4 subjects, marks between 30–100 (use <code>np.random</code>).</li>
+          <li>Calculate class-wide statistics (mean, std, percentiles) per subject.</li>
+          <li>Normalize all marks using z-score normalization.</li>
+          <li>Identify the top 10% of students (by average) and the bottom 10%.</li>
+          <li>Convert to a Pandas DataFrame with student names as index and subject names as columns.</li>
+          <li>Export to CSV with <code>df.to_csv('results.csv')</code>.</li>
+        </ol>
+      </div>
+
+      <div style="margin-top: 40px; padding: 28px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; text-align: center;">
+        <div style="font-family:'Fraunces',serif; font-size:22px; color:#fff; margin-bottom: 10px;">You now know NumPy. 🎉</div>
+        <p style="color: var(--muted); max-width: 500px; margin: 0 auto; font-size: 14px;">Every concept here — arrays, indexing, operations, broadcasting, reshaping — is used daily in real data science work. The best way to solidify this: find a real dataset (Kaggle, UCI ML Repository) and analyze it with only NumPy. You'll be surprised how far you can go.</p>
+        <div style="margin-top: 20px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+          <code style="font-size: 12px;">numpy docs</code>
+          <code style="font-size: 12px;">kaggle.com/datasets</code>
+          <code style="font-size: 12px;">numpy.org/learn</code>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<script>
+  // Highlight active nav link on scroll
+  const sections = document.querySelectorAll('.section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+        if (active) {
+          active.classList.add('active');
+          active.querySelector('.dot').style.background = 'var(--accent)';
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
