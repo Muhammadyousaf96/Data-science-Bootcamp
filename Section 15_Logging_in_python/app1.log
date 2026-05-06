@@ -1,0 +1,8 @@
+DEBUG:ArthemathicApp:Addition 4+6 = 10
+DEBUG:ArthemathicApp:Subtraction 10-5 = 5
+DEBUG:ArthemathicApp:multiplication 12*6 = 72
+ERROR:ArthemathicApp:Division by zero not allowed
+DEBUG:ArthemathicApp:Addition 4+6 = 10
+DEBUG:ArthemathicApp:Subtraction 10-5 = 5
+DEBUG:ArthemathicApp:multiplication 12*6 = 72
+ERROR:ArthemathicApp:Division by zero not allowed
