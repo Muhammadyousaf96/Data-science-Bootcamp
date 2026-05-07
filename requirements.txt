@@ -1,5 +1,6 @@
 ipykernel
-numpay
+numpy
 pandas
 matplotlib
 seaborn
+bs4
