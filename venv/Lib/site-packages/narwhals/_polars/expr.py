@@ -16,6 +16,7 @@ from narwhals._polars.utils import (
     extract_args_kwargs,
     extract_native,
     narwhals_to_native_dtype,
+    native_get_categories,
 )
 from narwhals._utils import NO_DEFAULT, Implementation, requires
 
@@ -504,7 +505,11 @@ class PolarsExprStringNamespace(
 
 class PolarsExprCatNamespace(
     PolarsExprNamespace, PolarsCatNamespace[PolarsExpr, pl.Expr]
-): ...
+):
+    def get_categories(self) -> PolarsExpr:
+        return self.compliant._with_native(
+            self.native.map_batches(native_get_categories, return_dtype=pl.String)
+        )
 
 
 class PolarsExprNameNamespace(PolarsExprNamespace):

@@ -98,11 +98,23 @@
 #endif
 
 #ifdef _MSC_VER
-    #define NPY_FINLINE static __forceinline
+    #ifdef __cplusplus
+        #define NPY_FINLINE __forceinline
+    #else
+        #define NPY_FINLINE static __forceinline
+    #endif
 #elif defined(__GNUC__)
-    #define NPY_FINLINE static inline __attribute__((always_inline))
+    #ifdef __cplusplus
+        #define NPY_FINLINE inline __attribute__((always_inline))
+    #else
+        #define NPY_FINLINE static inline __attribute__((always_inline))
+    #endif
 #else
-    #define NPY_FINLINE static
+    #ifdef __cplusplus
+        #define NPY_FINLINE inline
+    #else
+        #define NPY_FINLINE static NPY_INLINE
+    #endif
 #endif
 
 #if defined(_MSC_VER)
@@ -380,11 +392,11 @@ typedef struct
 #include <complex.h>
 
 
-#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER) && !defined(__INTEL_LLVM_COMPILER)
 typedef _Dcomplex npy_cdouble;
 typedef _Fcomplex npy_cfloat;
 typedef _Lcomplex npy_clongdouble;
-#else /* !defined(_MSC_VER) || defined(__INTEL_COMPILER) */
+#else /* !defined(_MSC_VER) || defined(__INTEL_COMPILER) && !defined(__INTEL_LLVM_COMPILER) */
 typedef double _Complex npy_cdouble;
 typedef float _Complex npy_cfloat;
 typedef longdouble_t _Complex npy_clongdouble;

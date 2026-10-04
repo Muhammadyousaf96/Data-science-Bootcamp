@@ -13,14 +13,13 @@ import warnings
 from numpy import _NoValue
 from numpy.exceptions import DTypePromotionError
 
+from ._multiarray_umath import _is_view_safe_cast
 from .multiarray import StringDType, array, dtype, promote_types
 
 try:
     import ctypes
 except ImportError:
     ctypes = None
-
-IS_PYPY = sys.implementation.name == 'pypy'
 
 if sys.byteorder == 'little':
     _nbo = '<'
@@ -171,8 +170,8 @@ def _commastring(astr):
                 mo = sep_re.match(astr, pos=startindex)
                 if not mo:
                     raise ValueError(
-                        'format number %d of "%s" is not recognized' %
-                        (len(result) + 1, astr))
+                        f'format number {len(result) + 1} of "{astr}" '
+                        'is not recognized')
                 startindex = mo.end()
                 islist = True
 
@@ -365,46 +364,6 @@ class _ctypes:
         """
         return self.data_as(ctypes.c_void_p)
 
-    # Numpy 1.21.0, 2021-05-18
-
-    def get_data(self):
-        """Deprecated getter for the `_ctypes.data` property.
-
-        .. deprecated:: 1.21
-        """
-        warnings.warn('"get_data" is deprecated. Use "data" instead',
-                      DeprecationWarning, stacklevel=2)
-        return self.data
-
-    def get_shape(self):
-        """Deprecated getter for the `_ctypes.shape` property.
-
-        .. deprecated:: 1.21
-        """
-        warnings.warn('"get_shape" is deprecated. Use "shape" instead',
-                      DeprecationWarning, stacklevel=2)
-        return self.shape
-
-    def get_strides(self):
-        """Deprecated getter for the `_ctypes.strides` property.
-
-        .. deprecated:: 1.21
-        """
-        warnings.warn('"get_strides" is deprecated. Use "strides" instead',
-                      DeprecationWarning, stacklevel=2)
-        return self.strides
-
-    def get_as_parameter(self):
-        """Deprecated getter for the `_ctypes._as_parameter_` property.
-
-        .. deprecated:: 1.21
-        """
-        warnings.warn(
-            '"get_as_parameter" is deprecated. Use "_as_parameter_" instead',
-            DeprecationWarning, stacklevel=2,
-        )
-        return self._as_parameter_
-
 
 def _newnames(datatype, order):
     """
@@ -526,7 +485,7 @@ def _getfield_is_safe(oldtype, newtype, offset):
 
     """
     if newtype.hasobject or oldtype.hasobject:
-        if offset == 0 and newtype == oldtype:
+        if offset == 0 and _is_view_safe_cast(oldtype, newtype):
             return
         if oldtype.names is not None:
             for name in oldtype.names:
@@ -556,9 +515,10 @@ def _view_is_safe(oldtype, newtype):
 
     """
 
-    # if the types are equivalent, there is no problem.
-    # for example: dtype((np.record, 'i4,i4')) == dtype((np.void, 'i4,i4'))
-    if oldtype == newtype:
+    # more precise than ``oldtype == newtype``: e.g. dtype((np.record, 'i4,i4'))
+    # views safely as dtype((np.void, 'i4,i4')), while two equal StringDType
+    # instances with separate allocators do not
+    if _is_view_safe_cast(oldtype, newtype):
         return
 
     if newtype.hasobject or oldtype.hasobject:
@@ -731,7 +691,7 @@ def __dtype_from_pep3118(stream, is_subdtype):
             is_padding = (typechar == 'x')
             dtypechar = type_map[typechar]
             if dtypechar in 'USV':
-                dtypechar += '%d' % itemsize
+                dtypechar += f'{itemsize}'
                 itemsize = 1
             numpy_byteorder = {'@': '=', '^': '='}.get(
                 stream.byteorder, stream.byteorder)
@@ -895,6 +855,8 @@ def _ufunc_doc_signature_formatter(ufunc):
     Builds a signature string which resembles PEP 457
 
     This is used to construct the first line of the docstring
+
+    Keep in sync with `_ufunc_inspect_signature_builder`.
     """
 
     # input arguments are simple
@@ -933,18 +895,62 @@ def _ufunc_doc_signature_formatter(ufunc):
     return f'{ufunc.__name__}({in_args}{out_args}, *{kwargs})'
 
 
+def _ufunc_inspect_signature_builder(ufunc):
+    """
+    Builds a ``__signature__`` string.
+
+    Should be kept in sync with `_ufunc_doc_signature_formatter`.
+    """
+
+    from inspect import Parameter, Signature
+
+    params = []
+
+    # positional-only input parameters
+    if ufunc.nin == 1:
+        params.append(Parameter("x", Parameter.POSITIONAL_ONLY))
+    else:
+        params.extend(
+            Parameter(f"x{i}", Parameter.POSITIONAL_ONLY)
+            for i in range(1, ufunc.nin + 1)
+        )
+
+    # for the sake of simplicity, we only consider a single output parameter
+    if ufunc.nout == 1:
+        out_default = None
+    else:
+        out_default = (None,) * ufunc.nout
+    params.append(
+        Parameter("out", Parameter.POSITIONAL_OR_KEYWORD, default=out_default),
+    )
+
+    if ufunc.signature is None:
+        params.append(Parameter("where", Parameter.KEYWORD_ONLY, default=True))
+    else:
+        # NOTE: not all gufuncs support the `axis` parameters
+        params.append(Parameter("axes", Parameter.KEYWORD_ONLY, default=_NoValue))
+        params.append(Parameter("axis", Parameter.KEYWORD_ONLY, default=_NoValue))
+        params.append(Parameter("keepdims", Parameter.KEYWORD_ONLY, default=False))
+
+    params.extend((
+        Parameter("casting", Parameter.KEYWORD_ONLY, default='same_kind'),
+        Parameter("order", Parameter.KEYWORD_ONLY, default='K'),
+        Parameter("dtype", Parameter.KEYWORD_ONLY, default=None),
+        Parameter("subok", Parameter.KEYWORD_ONLY, default=True),
+        Parameter("signature", Parameter.KEYWORD_ONLY, default=None),
+    ))
+
+    return Signature(params)
+
+
 def npy_ctypes_check(cls):
     # determine if a class comes from ctypes, in order to work around
     # a bug in the buffer protocol for those objects, bpo-10746
     try:
         # ctypes class are new-style, so have an __mro__. This probably fails
         # for ctypes classes with multiple inheritance.
-        if IS_PYPY:
-            # (..., _ctypes.basics._CData, Bufferable, object)
-            ctype_base = cls.__mro__[-3]
-        else:
-            # # (..., _ctypes._CData, object)
-            ctype_base = cls.__mro__[-2]
+        # # (..., _ctypes._CData, object)
+        ctype_base = cls.__mro__[-2]
         # right now, they're part of the _ctypes module
         return '_ctypes' in ctype_base.__module__
     except Exception:

@@ -3,12 +3,13 @@ import pytest
 import numpy as np
 
 from scipy.optimize._bracket import _ELIMITS
-from scipy.optimize.elementwise import bracket_root, bracket_minimum
+from scipy.optimize.elementwise import (bracket_root, bracket_minimum,
+                                        find_root, find_minimum)
 import scipy._lib._elementwise_iterative_method as eim
 from scipy import stats
 from scipy._lib._array_api_no_0d import (xp_assert_close, xp_assert_equal,
                                          xp_assert_less)
-from scipy._lib._array_api import xp_ravel
+from scipy._lib._array_api import xp_ravel, make_xp_test_case
 
 
 # These tests were originally written for the private `optimize._bracket`
@@ -40,12 +41,7 @@ def _bracket_minimum(*args, **kwargs):
     return res
 
 
-array_api_strict_skip_reason = 'Array API does not support fancy indexing assignment.'
-boolean_index_skip_reason = 'JAX/Dask arrays do not support boolean assignment.'
-
-@pytest.mark.skip_xp_backends('array_api_strict', reason=array_api_strict_skip_reason)
-@pytest.mark.skip_xp_backends('jax.numpy', reason=boolean_index_skip_reason)
-@pytest.mark.skip_xp_backends('dask.array', reason=boolean_index_skip_reason)
+@make_xp_test_case(bracket_root)
 class TestBracketRoot:
     @pytest.mark.parametrize("seed", (615655101, 3141866013, 238075752))
     @pytest.mark.parametrize("use_xmin", (False, True))
@@ -380,11 +376,21 @@ class TestBracketRoot:
         res = _bracket_root(lambda x: x + 0.25, xl0=-0.5, xmin=-np.inf, xmax=0)
         assert res.success
 
+    @pytest.mark.parametrize('dtype', ['float32', 'float64'])
+    def test_kwargs(self, xp, dtype):
+        # test that `kwargs` is used, broadcasts correctly, and affects dtype
+        def f(x, c, *, p):
+            return x - (p + c)
 
-@pytest.mark.skip_xp_backends('torch', reason='data-apis/array-api-compat#271')
-@pytest.mark.skip_xp_backends('array_api_strict', reason=array_api_strict_skip_reason)
-@pytest.mark.skip_xp_backends('jax.numpy', reason=boolean_index_skip_reason)
-@pytest.mark.skip_xp_backends('dask.array', reason=boolean_index_skip_reason)
+        a = xp.zeros((), dtype=xp.float32)
+        c = xp.asarray([1, 2, 3], dtype=xp.float32)
+        p = xp.asarray([2, 3, 4], dtype=getattr(xp, dtype))[:, xp.newaxis]
+        bracket = bracket_root(f, a, args=(c,), kwargs={'p': p})
+        res = find_root(f, bracket.bracket, args=(c,), kwargs={'p': p})
+        ref = p + c
+        xp_assert_close(res.x, ref)
+
+@make_xp_test_case(bracket_minimum)
 class TestBracketMinimum:
     def init_f(self):
         def f(x, a, b):
@@ -894,3 +900,17 @@ class TestBracketMinimum:
         result = _bracket_minimum(f, xp.asarray(-0.5535723499480897),
                                   xmin=xmin, xmax=xmax)
         xp_assert_close(result.xr, xmax)
+
+    @pytest.mark.parametrize('dtype', ['float32', 'float64'])
+    def test_kwargs(self, xp, dtype):
+        # test that `kwargs` is used, broadcasts correctly, and affects dtype
+        def f(x, c, *, p):
+            return (x - (p + c))**2
+
+        a = xp.zeros((), dtype=xp.float32)
+        c = xp.asarray([1, 2, 3], dtype=xp.float32)
+        p = xp.asarray([2, 3, 4], dtype=getattr(xp, dtype))[:, xp.newaxis]
+        bracket = bracket_minimum(f, a, args=(c,), kwargs={'p': p})
+        res = find_minimum(f, bracket.bracket, args=(c,), kwargs={'p': p})
+        ref = p + c
+        xp_assert_close(res.x, ref)

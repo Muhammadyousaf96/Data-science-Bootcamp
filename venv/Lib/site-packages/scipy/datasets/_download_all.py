@@ -6,6 +6,8 @@ This doesn't require a full scipy build.
 Run: python _download_all.py <download_dir>
 """
 
+from scipy._lib._array_api import xp_capabilities
+
 import argparse
 try:
     import pooch
@@ -13,7 +15,7 @@ except ImportError:
     pooch = None
 
 
-if __package__ is None or __package__ == '':
+if __spec__.parent is None or __spec__.parent == '':
     # Running as python script, use absolute import
     import _registry  # type: ignore
 else:
@@ -21,6 +23,7 @@ else:
     from . import _registry
 
 
+@xp_capabilities(out_of_scope=True)
 def download_all(path=None):
     """
     Utility method to download all the dataset files
@@ -31,7 +34,7 @@ def download_all(path=None):
     path : str, optional
         Directory path to download all the dataset files.
         If None, default to the system cache_dir detected by pooch.
-    
+
     Examples
     --------
     Download the datasets to the default cache location:
@@ -42,7 +45,7 @@ def download_all(path=None):
     Download the datasets to the current directory:
 
     >>> datasets.download_all(".")
-    
+
     """
     if pooch is None:
         raise ImportError("Missing optional dependency 'pooch' required "

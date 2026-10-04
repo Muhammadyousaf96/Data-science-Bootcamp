@@ -6,12 +6,7 @@ from functools import reduce
 import numpy as np
 import numpy.polynomial.laguerre as lag
 from numpy.polynomial.polynomial import polyval
-from numpy.testing import (
-    assert_,
-    assert_almost_equal,
-    assert_equal,
-    assert_raises,
-)
+from numpy.testing import assert_, assert_almost_equal, assert_equal, assert_raises
 
 L0 = np.array([1]) / 1
 L1 = np.array([1, -1]) / 1
@@ -173,6 +168,27 @@ class TestEvaluation:
         z = np.ones((2, 3))
         res = lag.lagval3d(z, z, z, self.c3d)
         assert_(res.shape == (2, 3))
+
+    def test_lagvalnd(self):
+        x1, x2, x3 = self.x
+        y1, y2, y3 = self.y
+        pts = (x1, x2, x3)
+
+        # test exceptions
+        assert_raises(ValueError, lag.lagvalnd, (x1, x2, x3[:2]), self.c3d)
+
+        # test values
+        tgt = y1 * y2 * y3
+        res = lag.lagvalnd(pts, self.c3d)
+        assert_almost_equal(res, tgt)
+
+        # test shape
+        z = np.ones((2, 3))
+        res = lag.lagvalnd((z, z, z), self.c3d)
+        assert_(res.shape == (2, 3))
+
+        # test 1D fallback
+        assert_almost_equal(lag.lagvalnd((x1,), self.c1d), y1)
 
     def test_laggrid2d(self):
         x1, x2, x3 = self.x

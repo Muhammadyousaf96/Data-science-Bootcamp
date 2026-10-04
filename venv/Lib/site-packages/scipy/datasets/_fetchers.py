@@ -3,17 +3,19 @@ import sys
 from numpy import array, frombuffer, load
 from ._registry import registry, registry_urls
 
+from scipy._lib._array_api import xp_capabilities
+
 try:
     import pooch
 except ImportError:
     pooch = None
     data_fetcher = None
 else:
-    data_fetcher = pooch.create(
+    data_fetcher = pooch.create(  # type:ignore[union-attr]
         # Use the default cache folder for the operating system
         # Pooch uses appdirs (https://github.com/ActiveState/appdirs) to
         # select an appropriate directory for the cache on each platform.
-        path=pooch.os_cache("scipy-data"),
+        path=pooch.os_cache("scipy-data"),  # type:ignore[union-attr]
 
         # The remote data is on Github
         # base_url is a required param, even though we override this
@@ -37,6 +39,7 @@ def fetch_data(dataset_name, data_fetcher=data_fetcher):
     return data_fetcher.fetch(dataset_name, downloader=downloader)
 
 
+@xp_capabilities(out_of_scope=True)
 def ascent():
     """
     Get an 8-bit grayscale bit-depth, 512 x 512 derived image for easy
@@ -44,10 +47,6 @@ def ascent():
 
     The image is derived from
     https://pixnio.com/people/accent-to-the-top
-
-    Parameters
-    ----------
-    None
 
     Returns
     -------
@@ -81,6 +80,7 @@ def ascent():
     return ascent
 
 
+@xp_capabilities(out_of_scope=True)
 def electrocardiogram():
     """
     Load an electrocardiogram as an example for a 1-D signal.
@@ -180,6 +180,7 @@ def electrocardiogram():
     return ecg
 
 
+@xp_capabilities(out_of_scope=True)
 def face(gray=False):
     """
     Get a 1024 x 768, color image of a raccoon face.
@@ -217,8 +218,7 @@ def face(gray=False):
     with open(fname, 'rb') as f:
         rawdata = f.read()
     face_data = bz2.decompress(rawdata)
-    face = frombuffer(face_data, dtype='uint8')
-    face.shape = (768, 1024, 3)
+    face = frombuffer(face_data, dtype='uint8').reshape((768, 1024, 3))
     if gray is True:
         face = (0.21 * face[:, :, 0] + 0.71 * face[:, :, 1] +
                 0.07 * face[:, :, 2]).astype('uint8')

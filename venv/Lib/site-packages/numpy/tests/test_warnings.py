@@ -34,10 +34,11 @@ class FindFuncs(ast.NodeVisitor):
         ast.NodeVisitor.generic_visit(self, node)
 
         if p.ls[-1] == 'simplefilter' or p.ls[-1] == 'filterwarnings':
-            if node.args[0].value == "ignore":
-                raise AssertionError(
-                    "warnings should have an appropriate stacklevel; "
-                    f"found in {self.__filename} on line {node.lineno}")
+            if node.args and getattr(node.args[0], "value", None) == "ignore":
+                if not self.__filename.name.startswith("test_"):
+                    raise AssertionError(
+                        "ignore filters should only be used in tests; "
+                        f"found in {self.__filename} on line {node.lineno}")
 
         if p.ls[-1] == 'warn' and (
                 len(p.ls) == 1 or p.ls[-2] == 'warnings'):
@@ -46,14 +47,16 @@ class FindFuncs(ast.NodeVisitor):
                 # This file
                 return
 
-            # See if stacklevel exists:
+            # See if stacklevel or skip_file_prefixes exists:
             if len(node.args) == 3:
                 return
             args = {kw.arg for kw in node.keywords}
             if "stacklevel" in args:
                 return
+            if "skip_file_prefixes" in args:
+                return
             raise AssertionError(
-                "warnings should have an appropriate stacklevel; "
+                "warnings should have an appropriate stacklevel or skip_file_prefixes; "
                 f"found in {self.__filename} on line {node.lineno}")
 
 

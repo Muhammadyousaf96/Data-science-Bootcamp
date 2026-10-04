@@ -191,7 +191,8 @@ class TestUtilities:
                   (0.3, 0.2, 1)]:
             i = tri.find_simplex(p[:2])
             assert_equal(i, p[2], err_msg=f'{p!r}')
-            j = qhull.tsearch(tri, p[:2])
+            with pytest.warns(DeprecationWarning, match="`tsearch` is deprecated"):
+                j = qhull.tsearch(tri, p[:2])
             assert_equal(i, j)
 
     def test_plane_distance(self):
@@ -356,7 +357,7 @@ class TestUtilities:
         npoints = {2: 70, 3: 11, 4: 5, 5: 3}
 
         for ndim in range(2, 6):
-            # Generate an uniform grid in n-d unit cube
+            # Generate a uniform grid in n-d unit cube
             x = np.linspace(0, 1, npoints[ndim])
             grid = np.c_[
                 list(map(np.ravel, np.broadcast_arrays(*np.ix_(*([x]*ndim)))))
@@ -431,7 +432,6 @@ class TestDelaunay:
     # Shouldn't be inherently unsafe; retry with cpython 3.14 once traceback
     # thread safety issues are fixed (also goes for other test with same name
     # further down)
-    @pytest.mark.thread_unsafe
     def test_array_with_nans_fails(self):
         points_with_nan = np.array([(0,0), (0,1), (1,1), (1,np.nan)], dtype=np.float64)
         assert_raises(ValueError, qhull.Delaunay, points_with_nan)
@@ -611,7 +611,6 @@ class TestConvexHull:
         masked_array = np.ma.masked_all(1)
         assert_raises(ValueError, qhull.ConvexHull, masked_array)
 
-    @pytest.mark.thread_unsafe
     def test_array_with_nans_fails(self):
         points_with_nan = np.array([(0,0), (1,1), (2,np.nan)], dtype=np.float64)
         assert_raises(ValueError, qhull.ConvexHull, points_with_nan)

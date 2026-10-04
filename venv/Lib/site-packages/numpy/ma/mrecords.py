@@ -12,7 +12,7 @@ and the masking of individual fields.
 #  or whatever restricted keywords.  An idea would be to no bother in the
 #  first place, and then rename the invalid fields with a trailing
 #  underscore. Maybe we could just overload the parser function ?
-
+import builtins
 import warnings
 
 import numpy as np
@@ -194,7 +194,7 @@ class MaskedRecords(ma.MaskedArray):
         _data = np.ndarray.view(self, _localdict['_baseclass'])
         obj = _data.getfield(*res)
         if obj.dtype.names is not None:
-            raise NotImplementedError("MaskedRecords is currently limited to"
+            raise NotImplementedError("MaskedRecords is currently limited to "
                                       "simple records.")
         # Get some special attributes
         # Reset the object's mask
@@ -353,40 +353,17 @@ class MaskedRecords(ma.MaskedArray):
         Returns a view of the mrecarray.
 
         """
-        # OK, basic copy-paste from MaskedArray.view.
-        if dtype is None:
-            if type is None:
-                output = np.ndarray.view(self)
-            else:
-                output = np.ndarray.view(self, type)
-        # Here again.
-        elif type is None:
-            try:
-                if issubclass(dtype, np.ndarray):
-                    output = np.ndarray.view(self, dtype)
-                else:
-                    output = np.ndarray.view(self, dtype)
-            # OK, there's the change
-            except TypeError:
-                dtype = np.dtype(dtype)
-                # we need to revert to MaskedArray, but keeping the possibility
-                # of subclasses (eg, TimeSeriesRecords), so we'll force a type
-                # set to the first parent
-                if dtype.fields is None:
-                    basetype = self.__class__.__bases__[0]
-                    output = self.__array__().view(dtype, basetype)
-                    output._update_from(self)
-                else:
-                    output = np.ndarray.view(self, dtype)
-                output._fill_value = None
-        else:
-            output = np.ndarray.view(self, dtype, type)
-        # Update the mask, just like in MaskedArray.view
-        if (getattr(output, '_mask', ma.nomask) is not ma.nomask):
-            mdtype = ma.make_mask_descr(output.dtype)
-            output._mask = self._mask.view(mdtype, np.ndarray)
-            output._mask.shape = output.shape
-        return output
+        # If the new dtype has no fields, we need to revert to MaskedArray,
+        # but keep the possibility of subclasses (eg, TimeSeriesRecords).
+        # So we'll force a type set to the first parent.
+        if (type is None
+                and dtype is not None
+                and not (isinstance(dtype, builtins.type)
+                         and issubclass(dtype, np.ndarray))
+                and (dtype := np.dtype(dtype)).fields is None):
+            type = self.__class__.__bases__[0]
+
+        return super().view(*[a for a in (dtype, type) if a is not None])
 
     def harden_mask(self):
         """
@@ -657,8 +634,7 @@ def openfile(fname):
 
 
 def fromtextfile(fname, delimiter=None, commentchar='#', missingchar='',
-                 varnames=None, vartypes=None,
-                 *, delimitor=np._NoValue):  # backwards compatibility
+                 varnames=None, vartypes=None):
     """
     Creates a mrecarray from data stored in the file `filename`.
 
@@ -682,16 +658,6 @@ def fromtextfile(fname, delimiter=None, commentchar='#', missingchar='',
 
 
     Ultra simple: the varnames are in the header, one line"""
-    if delimitor is not np._NoValue:
-        if delimiter is not None:
-            raise TypeError("fromtextfile() got multiple values for argument "
-                            "'delimiter'")
-        # NumPy 1.22.0, 2021-09-23
-        warnings.warn("The 'delimitor' keyword argument of "
-                      "numpy.ma.mrecords.fromtextfile() is deprecated "
-                      "since NumPy 1.22.0, use 'delimiter' instead.",
-                      DeprecationWarning, stacklevel=2)
-        delimiter = delimitor
 
     # Try to open the file.
     ftext = openfile(fname)
